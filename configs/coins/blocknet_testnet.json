@@ -22,10 +22,10 @@
     "package_name": "backend-blocknet-testnet",
     "package_revision": "satoshilabs-1",
     "system_user": "blocknet",
-    "version": "4.3.3",
-    "binary_url": "https://github.com/blocknetdx/blocknet/releases/download/v4.3.3/blocknet-4.3.3-x86_64-linux-gnu.tar.gz",
+    "version": "4.4.0",
+    "binary_url": "https://github.com/blocknetdx/blocknet/releases/download/v4.4.0/blocknet-4.4.0-x86_64-linux-gnu.tar.gz",
     "verification_type": "sha256",
-    "verification_source": "fda57c0515126997509303d4bc25440a309792e3b9c92a8bd197d1312e94b49c",
+    "verification_source": "a07f66dc2cb67fd71f211abd57573f0db07a251210a728f4f1c707ba9da9e665",
     "extract_command": "tar -C backend --strip 1 -xf",
     "exclude_files": [
       "bin/blocknet-qt",
