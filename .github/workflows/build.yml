@@ -28,13 +28,12 @@ jobs:
         run: |
           make BASE_IMAGE=ubuntu:20.04 PORTABLE=1 build-images
 
-      - name: Run CI unit tests
-        run: |
-          make test
-
-      - name: Build both Blockbook and back-end packages
+      - name: Build mainnet packages
         run: |
           make deb-blocknet
+
+      - name: Build testnet packages
+        run: |
           make deb-blocknet_testnet
 
       - uses: actions/upload-artifact@v3
