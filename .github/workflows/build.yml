@@ -18,7 +18,7 @@ permissions:
   contents: write
 
 jobs:
-  prepare_image:
+  build:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -28,35 +28,14 @@ jobs:
         run: |
           make BASE_IMAGE=ubuntu:20.04 PORTABLE=1 build-images
 
-      - name: Export base image to file
-        run: docker save --output /tmp/blockbook-build.tar blockbook-build
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: blockbook-build
-          path: /tmp/blockbook-build.tar
-
-  build_mainnet:
-    runs-on: ubuntu-22.04
-    needs: prepare_image
-    steps:
-      - uses: actions/checkout@v4
-        if: github.event.pull_request.draft == false
-
-      - name: Download docker image artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: blockbook-build
-          path: /tmp
-
-      - name: Import image
+      - name: Run CI unit tests
         run: |
-          docker load --input /tmp/blockbook-build.tar
-          docker image ls -a
+          make test
 
       - name: Build both Blockbook and back-end packages
         run: |
-          make BASE_IMAGE=ubuntu:20.04 PORTABLE=1 deb-blocknet
+          make deb-blocknet
+          make deb-blocknet_testnet
 
       - uses: actions/upload-artifact@v3
         with:
@@ -64,43 +43,6 @@ jobs:
           path: |
             build/backend-blocknet_*_amd64.deb 
             build/blockbook-blocknet_*_amd64.deb
-
-      - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/v')
-        with:
-          name: Blockbook ${{ github.ref_name }}
-          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
-          generate_release_notes: true
-          files: |
-            build/backend-blocknet_*_amd64.deb 
-            build/blockbook-blocknet_*_amd64.deb
-
-  build_testnet:
-    runs-on: ubuntu-22.04
-    needs: prepare_image
-    steps:
-      - uses: actions/checkout@v4
-        if: github.event.pull_request.draft == false
-
-      - name: Download docker image artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: blockbook-build
-          path: /tmp
-
-      - name: Import image
-        run: |
-          docker load --input /tmp/blockbook-build.tar
-          docker image ls -a
-
-      - name: Build both Blockbook and back-end packages
-        run: |
-          make BASE_IMAGE=ubuntu:20.04 PORTABLE=1 deb-blocknet_testnet
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: artifacts-mainnet
-          path: |
             build/backend-blocknet-testnet_*_amd64.deb 
             build/blockbook-blocknet-testnet_*_amd64.deb
 
@@ -111,5 +53,7 @@ jobs:
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
           generate_release_notes: true
           files: |
+            build/backend-blocknet_*_amd64.deb 
+            build/blockbook-blocknet_*_amd64.deb
             build/backend-blocknet-testnet_*_amd64.deb 
             build/blockbook-blocknet-testnet_*_amd64.deb
